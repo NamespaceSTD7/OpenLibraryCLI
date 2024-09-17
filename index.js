@@ -29,11 +29,11 @@ const argv = yargs(hideBin(process.argv))
                 type: "array",
                 description: "Список полей, которые необходимо вывести"
             })
-            .option('sort', {
+            /*.option('sort', {
                 alias: "s",
                 type: "string",
                 description: "Поле для сортировки"
-            })
+            })*/
             .option('all', {
                 alias: "a",
                 type: "boolean",
@@ -100,48 +100,45 @@ function getSearchUrl() {
 
 const searchUrl = getSearchUrl()
 
-const saveToFile = (docs) => {
+const fileName = argv.out + (argv.json ? '.json' : (argv.csv ? '.csv' : '.txt'))
+fs.writeFile(fileName, '', (err) => {
+    if (err) {
+        console.error('Ошибка при очистке файла:', err);
+        process.exit(1);
+    }
+});
+
+const writeStr = fs.createWriteStream(fileName, { flags: 'a' })
+writeStr.on('error', (err) => {
+    console.error(err)
+    process.exit(1)
+})
+
+const csvWriter = createCsvWriter({
+    path: argv.out + '.csv',
+    header: argv.fields !== undefined ? argv.fields.map(field => ({ id: field, title: field })) : [],
+});
+
+const saveToFile = (docs, offset) => {
 
     if (argv.csv) {
-        const csvWriter = createCsvWriter({
-            path: argv.out + '.csv',
-            header: argv.fields !== undefined ? argv.fields.map(field => ({ id: field, title: field })) : [],
-        });
         csvWriter.writeRecords(docs)
-        .then(() => {
-            console.log('CSV файл успешно создан');
-        })
         .catch((error) => {
             console.error('Произошла ошибка при создании CSV файла:', error);
             process.exit(1);
         });
     } else {
         const content = argv.json ? JSON.stringify(docs, null, 2) : docs.map((obj, index) => {
-            let formattedObj = `${index + 1}.\n`;
+            let formattedObj = `${offset + index + 1}.\n`;
             for (const key in obj) {
                 formattedObj += `${key}: ${JSON.stringify(obj[key])}\n`;
             }
             return formattedObj;
         }).join('\n\n');
 
-        const fileName = argv.out + (argv.json ? '.json' : '.txt')
-        const writeSrt = fs.createWriteStream(fileName)
-
-        writeSrt.write(content, 'utf-8')
-        writeSrt.end()
-
-        writeSrt.on('finish', () => {
-            console.log(`Результат сохранён в файл ${fileName}`)
-        })
-
-        writeSrt.on('error', (err) => {
-            console.error(err)
-            process.exit(1)
-        })
+        writeStr.write(content, 'utf-8')
     }
 }
-
-let docs = []
 
 function searchDocs(url) {
 
@@ -160,16 +157,14 @@ function searchDocs(url) {
         res.on('data', (chunk) => rowData += chunk)
         res.on('end', () => {
             const jsonRes = JSON.parse(rowData)
-            docs = docs.concat(jsonRes.docs)
+            saveToFile(jsonRes.docs, jsonRes.start)
 
             if (argv.all && jsonRes.start + 100 < jsonRes.numFound) {
                 searchDocs(searchUrl + `&offset=${jsonRes.start + 100}`)
                 return
             }
-    
-            docs.sort((a, b) => a[argv.sort] > b[argv.sort] ? 1 : -1)
-            //console.log(docs)
-            saveToFile(docs)
+            writeStr.end()
+            console.log(`Результаты поиска сохранены в файл ${fileName}`)
         })
     }).on('error', (err) => {
         console.error(err)
