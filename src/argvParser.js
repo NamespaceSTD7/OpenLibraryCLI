@@ -6,13 +6,11 @@ module.exports = (argv) => yargs(hideBin(argv))
         yargs.option('json', {
             alias: "j",
             type: "boolean",
-            default: false,
             description: "Вывод результата в формате JSON"
         })
         .option('csv', {
             alias: "c",
             type: "boolean",
-            default: false,
             description: "Вывод результата в формате CSV"
         })
         .option('out', {
@@ -51,11 +49,8 @@ module.exports = (argv) => yargs(hideBin(argv))
             type: "number",
             description: "Количество записей на странице/всего"
         })
+        .conflicts('json', 'csv')
         .check((argv) => {
-            if (argv.json && argv.csv) {
-                console.error('Парметры --json и --csv являются взаимоисключающими. Укажите только один из них.');
-                process.exit(1);
-            }
             if ((argv.page && argv.offset) || (argv.all && (argv.offset || argv.page))) {
                 console.error('Параметры --offset, --page и --all взаимоисключающие.  Укажите только один из них.');
                 process.exit(1);

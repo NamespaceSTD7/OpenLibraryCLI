@@ -17,8 +17,7 @@ function saveToFile(docs, isEnd = false) {
 
     if (!writeStream) {
         if (fileName) {
-            clearFile(fileName);
-            writeStream = fs.createWriteStream(fileName, { flags: 'a' });
+            writeStream = fs.createWriteStream(fileName);
         } else {
             writeStream = process.stdout;
         }
@@ -72,17 +71,6 @@ function saveToFile(docs, isEnd = false) {
 
             writeStream.write(content);
         }
-    }
-}
-
-function clearFile(fileName) {
-    if (fileName) {
-        fs.writeFile(fileName, '', (err) => {
-            if (err) {
-                console.error('Ошибка при очистке файла:', err);
-                process.exit(1);
-            }
-        });
     }
 }
 
