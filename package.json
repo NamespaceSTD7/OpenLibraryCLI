@@ -1,0 +1,31 @@
+{
+  "name": "openlibrarycli",
+  "version": "1.0.0",
+  "description": "CLI for OpenLibrary",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "bin": {
+    "openlibrary": "./src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NamespaceSTD7/OpenLibraryCLI.git"
+  },
+  "keywords": [
+    "CLI",
+    "OpenLibrary",
+    "NodeJS"
+  ],
+  "author": "Stepanov Timofey",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/NamespaceSTD7/OpenLibraryCLI/issues"
+  },
+  "homepage": "https://github.com/NamespaceSTD7/OpenLibraryCLI#readme",
+  "dependencies": {
+    "csv-writer": "^1.6.0",
+    "yargs": "^17.7.2"
+  }
+}
