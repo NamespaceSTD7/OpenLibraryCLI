@@ -6,6 +6,9 @@
   "scripts": {
     "start": "node index.js"
   },
+  "bin": {
+    "openlibrary": "./index.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NamespaceSTD7/OpenLibraryCLI.git"
